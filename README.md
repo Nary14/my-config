@@ -11,6 +11,7 @@ Le script:
 - lit les flux audio avec `cvlc`
 - permet pause/reprise, piste suivante, pagination des résultats
 - propose un mode fond (`q`) avec mini-visualiseur en terminal
+- supporte le controle en arriere-plan via une commande shell `tmg` (FIFO de controle)
 
 Fichier principal: `mp3.py`
 
@@ -90,6 +91,37 @@ Dans l'interface:
 - `p` page precedente
 - `q` ferme l'UI mais laisse la musique en fond (mini-visualiseur terminal)
 - `Esc` stoppe la lecture et quitte
+
+## Controle musique en background via `.zshrc`
+
+Pour controler Terminal Music Grid apres passage en mode fond, ajoutez ceci dans votre `~/.zshrc`:
+
+```bash
+# Controle de Terminal Music Grid
+tmg() {
+    if [ -e /tmp/tmg_ctrl.fifo ]; then
+        echo "$1" > /tmp/tmg_ctrl.fifo
+    else
+        echo "TMG n'est pas lancé (FIFO introuvable)."
+    fi
+}
+
+alias music='python3 ~/mp3.py'           # Lancer Terminal Music Grid
+alias p='tmg p'                       # Pause/reprise
+alias n='tmg n'                       # Piste suivante
+alias q='tmg q'
+```
+
+Puis rechargez la configuration shell:
+
+```bash
+source ~/.zshrc
+```
+
+Commandes disponibles:
+- `tmg p` : met en pause ou relance la lecture.
+- `tmg n` : passe a la musique suivante.
+- `tmg q` : arrete tout proprement (musique + HUD en haut de l'ecran).
 
 ## Activer SoundCloud (optionnel)
 
